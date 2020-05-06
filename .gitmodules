@@ -1,0 +1,6 @@
+[submodule "deps/capnproto"]
+	path = deps/capnproto
+	url = https://github.com/capnproto/capnproto
+[submodule "deps/c-capnproto"]
+	path = deps/c-capnproto
+	url = ../c-capnproto
