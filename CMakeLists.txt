@@ -4,6 +4,7 @@ if(CCACHE_PROGRAM)
     set(CCACHE_ARGS "-DCMAKE_CXX_COMPILER_LAUNCHER:STRING=${CCACHE_PROGRAM}" "-DCMAKE_C_COMPILER_LAUNCHER:STRING=${CCACHE_PROGRAM}")
 endif()
 project("CMake-Capnproto-Wrapper")
+add_subdirectory(deps/c-capnproto)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} PARENT_SCOPE)
 
@@ -27,11 +28,11 @@ add_custom_target(capnp-proj-ninja-hack
 )
 add_dependencies(capnp-proj-ninja-hack capnp-proj)
 
-add_executable(capnp IMPORTED GLOBAL)
-set_target_properties(capnp PROPERTIES
+add_executable(native-capnp IMPORTED GLOBAL)
+set_target_properties(native-capnp PROPERTIES
     IMPORTED_LOCATION ${capnproto-root}/bin/capnp
 )
-add_dependencies(capnp capnp-proj-ninja-hack)
+add_dependencies(native-capnp capnp-proj-ninja-hack)
 
 ExternalProject_Add(c-capnp-proj
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/c-capnproto
@@ -41,22 +42,17 @@ ExternalProject_Add(c-capnp-proj
 add_custom_command(OUTPUT capnp-c-ninja-hack.txt
     COMMAND echo hack > capnp-c-ninja-hack.txt
     DEPENDS c-capnp-proj
-    BYPRODUCTS ${capnproto-root}/bin/capnp-c ${capnproto-root}/lib/libcapnp_c.a
+    BYPRODUCTS ${capnproto-root}/bin/capnp-c
 )
 
 add_custom_target(capnp-c-ninja-hack
     DEPENDS capnp-c-ninja-hack.txt
 )
-add_library(capnp_c STATIC IMPORTED GLOBAL)
-set_target_properties(capnp_c PROPERTIES
-    IMPORTED_LOCATION ${capnproto-root}/lib/libcapnp_c.a
-)
-add_dependencies(capnp_c c-capnp-ninja-hack)
 
-add_executable(capnp-c IMPORTED GLOBAL)
+add_executable(native-capnp-c IMPORTED GLOBAL)
 
-set_target_properties(capnp-c PROPERTIES 
+set_target_properties(native-capnp-c PROPERTIES 
     IMPORTED_LOCATION ${capnproto-root}/bin/capnp-c
     capnp_include_path ${capnproto-root}/include
 )
-add_dependencies(capnp-c capnp-c-ninja-hack)
+add_dependencies(native-capnp-c capnp-c-ninja-hack)
